@@ -1,10 +1,10 @@
 pub fn ex1_func() {
-    let address = String::from("Street 1");
+    let mut address = String::from("Street 1");
     add_postal_code(&mut address);
 
-    println!("{}", a);
+    println!("{}", address);
 }
 
-fn add_postal_code(mut address: String) {
+fn add_postal_code(address: &mut String) {
     address.push_str(", 12345 Kingston");
 }
