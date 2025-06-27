@@ -1,3 +1,8 @@
+use std::str::FromStr;
+use std::io::{Error, ErrorKind};
+use serde::{Serialize, Deserialize};
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Question {
     id: QuestionId,
     title: String,
@@ -5,7 +10,7 @@ pub struct Question {
     tags: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct QuestionId(String);
 
 impl QuestionId {
@@ -54,7 +59,7 @@ impl std::fmt::Debug for Question {
         write!(
             f,
             "Question ID: {}, Title: {}, Content: {}, Tags: {:?}",
-            self.id.0, self.title, self.content, self.tags
+            self.id(), self.title, self.content, self.tags
         )
     }
 }
@@ -64,7 +69,7 @@ impl std::fmt::Display for Question {
         write!(
             f,
             "Question ID: {}, Title: {}, Content: {}, Tags: {:?}",
-            self.id.0, self.title, self.content, self.tags
+            self.id(), self.title, self.content, self.tags
         )
     }
 }
@@ -75,3 +80,15 @@ impl std::fmt::Display for Question {
     }
 }
  */
+
+ 
+ impl FromStr for QuestionId {
+    type Err = String;
+
+    fn from_str(id: &str) -> Result<Self, Self::Err> {
+        match  id.is_empty() {
+            false => Ok(QuestionId(id.to_string())),
+            true => Err(Error::new(ErrorKind::InvalidInput, "QuestionId cannot be empty").to_string()),
+        }
+    }
+}

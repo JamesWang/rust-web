@@ -1,6 +1,8 @@
 mod minimal_http;
 mod models;
-//use minimal_http::minimal_main::minimal_http_svr;
+mod handlers;
+
+use minimal_http::minimal_main::minimal_http_svr;
 use models::question::{Question, QuestionId};
 use minimal_http::http_call::http_call;
 
@@ -23,4 +25,7 @@ async fn main() {
         Ok(_) => println!("HTTP call succeeded"),
         Err(e) => eprintln!("HTTP call failed: {}", e), 
     }
+
+     minimal_http_svr().await;
+
 }
