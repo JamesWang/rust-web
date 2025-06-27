@@ -50,3 +50,15 @@ The runtime will:
 - Resume your function when the awaited operation is ready.
 
 This allows efficient, non-blocking concurrency.
+
+### Setup Rustup/Cargo in restricted environment ###
+* download binary for specific environment, for example an virtual machine
+* copy and unzip it to a directory, then inside the director, using sudo ./install.sh to install it
+* To make cargo to download dependencies, 
+ * add proxy to ~/.cargo/config.toml
+   [http]
+   proxy="your-proxy:port"
+ * first get a certificate of organization, and put it to a directory, named as cacert.pem, for example
+ * then using browser or other tools to get index.crate.io certificate and append it to the  cacert.pem 
+ * get other certificates if required do the same as above
+* then you should be able to use cargo to build
