@@ -1,6 +1,7 @@
 use warp::reject::Reject;
 use crate::models::question::{Question, QuestionId};
 use std::str::FromStr;
+use warp::filters::cors::CorsForbidden;
 
 #[derive(Debug)]
 struct InvalidId;
@@ -22,16 +23,23 @@ pub async fn get_questions() -> Result<impl warp::Reply, warp::Rejection> {
 }
 
 pub async fn return_error(err: warp::Rejection) -> Result<impl warp::Reply, warp::Rejection> {
+    println!("Error occurred: {:?}", err);
+    if let Some(error) = err.find::<CorsForbidden>() {
+        return Ok(warp::reply::with_status(
+            error.to_string(),
+            warp::http::StatusCode::FORBIDDEN,
+        ));
+    } else
     if let Some(_InvalidId) = err.find::<InvalidId>() {
         return Ok(warp::reply::with_status(
-            "Invalid ID provided",
+            "Invalid ID provided".to_string(),
             warp::http::StatusCode::UNPROCESSABLE_ENTITY
         )); 
     } else {
         // Handle other types of errors
         eprintln!("Unhandled error: {:?}", err);
         Ok(warp::reply::with_status(
-            "Route not found or internal error",
+            "Route not found or internal error".to_string(),
             warp::http::StatusCode::INTERNAL_SERVER_ERROR,
         ))
     }
