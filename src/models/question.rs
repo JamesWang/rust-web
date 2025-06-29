@@ -1,16 +1,16 @@
-use std::str::FromStr;
 use std::io::{Error, ErrorKind};
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Question {
     id: QuestionId,
     title: String,
     content: String,
     tags: Option<Vec<String>>,
 }
-
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+//HashMap requires the traits Eq, PartialEq, and Hash for any object used as the HashMap key/index
+// QuestionId is used as a unique identifier for each question
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct QuestionId(String);
 
 impl QuestionId {
@@ -19,7 +19,7 @@ impl QuestionId {
     }
 }
 
-impl Question {
+/* impl Question {
     pub fn new(id: QuestionId, title: String, content: String, tags: Option<Vec<String>>) -> Self {
         Question {
             id,
@@ -53,8 +53,8 @@ impl Question {
         self.tags.as_ref()
     }
 }
-
-impl std::fmt::Debug for Question {
+ */
+/* impl std::fmt::Debug for Question {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(
             f,
@@ -72,7 +72,7 @@ impl std::fmt::Display for Question {
             self.id(), self.title, self.content, self.tags
         )
     }
-}
+} */
 
 /* impl std::fmt::Debug for QuestionId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
@@ -82,7 +82,7 @@ impl std::fmt::Display for Question {
  */
 
  
- impl FromStr for QuestionId {
+/*  impl FromStr for QuestionId {
     type Err = String;
 
     fn from_str(id: &str) -> Result<Self, Self::Err> {
@@ -91,4 +91,4 @@ impl std::fmt::Display for Question {
             true => Err(Error::new(ErrorKind::InvalidInput, "QuestionId cannot be empty").to_string()),
         }
     }
-}
+} */
