@@ -45,6 +45,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 **Rust comes without a runtime or an abstraction over
 asynchronous kernel APIs.**
+
 ![alt text](image.png)
 
 * A function that you await returns a Future
