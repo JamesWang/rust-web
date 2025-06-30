@@ -2,6 +2,8 @@
 pub enum Error {
     ParseError(std::num::ParseIntError),
     MissingParameters,
+    QuestionNotFound,
+    QuestionAlreadyExists,
 }
 
 impl std::fmt::Display for Error {
@@ -9,6 +11,8 @@ impl std::fmt::Display for Error {
         match *self {
             Error::ParseError( ref err) => write!(f, "Cannot parse parameter: {}", err),
             Error::MissingParameters => write!(f, "Missing parameters"),
+            Error::QuestionNotFound => write!(f, "Question not found"),
+            Error::QuestionAlreadyExists => write!(f, "Question already exists"),
         }
     }
 }

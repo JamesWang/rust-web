@@ -1,16 +1,19 @@
 use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
 use crate::models::question::{Question, QuestionId};
 
 #[derive(Debug, Clone)]
 pub struct Store {
-    pub questions: HashMap<QuestionId, Question>,
+    pub questions: Arc<RwLock<HashMap<QuestionId, Question>>>,
 }
 
 
 impl Store {
     pub fn new() -> Self {
         Store {
-            questions: Self::init(),
+            questions: Arc::new(RwLock::new(Self::init())),
         }
     }
 
@@ -26,11 +29,11 @@ impl Store {
         self
     } */
 
-    pub fn get_question(&self, id: &QuestionId) -> Option<&Question> {
+/*     pub fn get_question(&self, id: &QuestionId) -> Option<&Question> {
         self.questions.get(id)
     }
 
     pub fn get_all_questions(&self) -> Vec<&Question> {
         self.questions.values().collect()
-    }
+    } */
 }

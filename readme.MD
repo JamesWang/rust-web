@@ -65,3 +65,18 @@ This allows efficient, non-blocking concurrency.
 
 #### Async/Await ####
 * The intent of the syntax **async** and **await** is to make wrting asynchronous Rust code feel like synchronous, blocking code to the programmer. In the background, Rust is transforming this piece of code into a state machine, where each different **await** represents a state. Once all of the states are ready, the function continues to the last line and returns the result.
+
+
+
+### Ownership
+* Whenever we pass a value to a new function, we transfer the ownership of this value and have to wait until we get it back.
+
+### Rc and Arc
+* **Rc** -  works only on single-threaded systems.
+* **Arc** - *(atomically reference count)* is for multithreaded, enabling you to share data among multiple threads
+  * It is like a container, which moves the wrapped data onto the ***heap*** and creates a pointer toit on the ***stack***
+  * When cloneing an **Arc**, you cone the pointer that points to the same data structure on the ***heap***, count increased by 1
+
+### Mutex and RwLock
+* Mutex blocks for either a writer or reader
+* RwLock allows many readers simultaneously but just ***one writer at a time***

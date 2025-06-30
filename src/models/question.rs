@@ -19,8 +19,8 @@ impl QuestionId {
     }
 }
 
-/* impl Question {
-    pub fn new(id: QuestionId, title: String, content: String, tags: Option<Vec<String>>) -> Self {
+ impl Question {
+/*     pub fn new(id: QuestionId, title: String, content: String, tags: Option<Vec<String>>) -> Self {
         Question {
             id,
             title,
@@ -28,7 +28,7 @@ impl QuestionId {
             tags,
         }
     }
-    pub fn update_title(&mut self, new_title: String) -> Self{
+     pub fn update_title(&mut self, new_title: String) -> Self{
         Question::new(
             self.id.clone(),
             new_title,
@@ -36,9 +36,9 @@ impl QuestionId {
             self.tags.clone(),
         )
     }
-
-    pub fn id(&self) -> &str {
-        &self.id.0
+*/
+    pub fn id(&self) -> &QuestionId {
+        &self.id
     }
 
     pub fn title(&self) -> &str {
@@ -53,7 +53,7 @@ impl QuestionId {
         self.tags.as_ref()
     }
 }
- */
+ 
 /* impl std::fmt::Debug for Question {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(
