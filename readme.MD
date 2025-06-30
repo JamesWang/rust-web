@@ -13,6 +13,19 @@ targets = ["x86_64-unknown-linux-gnu"]
 ```
 * **Ubuntu sytem package manager** is using ***sudo apt*** to **install**, **update**, **remove** etc.
 
+### Setup VSC Remote SSH
+- Install Remote SSH plugin
+- After installation, re-start VSC, and click left-bottom (SSH)
+- Choose **Connect to Host**
+- Enter to be connected host name or IP, it will ask for password if everything goes well
+- Configure your SSH config if you want to use public key using ~/.ssh/config
+```
+  Host <A-name>
+    HostName <host-name>
+    User <username>
+    IdentityFile ~/.ssh/id_rsa
+```
+
 ### String vs. &str ###
 * Underneath the String is vector, that means we can remove and insert u8 values to the vector 
 * A &str (string literal) 
