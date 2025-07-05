@@ -1,11 +1,11 @@
 mod minimal_http;
-mod models;
-mod handlers;
+mod types;
+mod routes;
 mod storage;
 
 
 use minimal_http::minimal_main::minimal_http_svr;
-use models::question::{Question, QuestionId};
+use types::question::{Question, QuestionId};
 use minimal_http::http_call::http_call;
 
 #[tokio::main]

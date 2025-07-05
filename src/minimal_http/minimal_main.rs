@@ -1,6 +1,6 @@
 use warp::Filter;
-use crate::handlers::handler::get_questions;
-use crate::handlers::handler::return_error;
+use crate::routes::handler::get_questions;
+use crate::types::error::return_error;
 use crate::storage;
 
 pub async fn minimal_http_svr() {
@@ -23,7 +23,7 @@ pub async fn minimal_http_svr() {
         //and the store_filter will be used to access the store
         //add_question(Question, Store) expects Question first and Store second
         .and(store_filter.clone())
-        .and_then(crate::handlers::handler::add_question);
+        .and_then(crate::routes::handler::add_question);
 
     let update_question = warp::put()
         .and(warp::path("questions"))
@@ -31,7 +31,7 @@ pub async fn minimal_http_svr() {
         .and(warp::path::end())
         .and(warp::body::json()) // get Question struct from the body
         .and(store_filter.clone()) // get the store for update_question
-        .and_then(crate::handlers::handler::update_question); // You might want to change this to an actual update handler
+        .and_then(crate::routes::handler::update_question); // You might want to change this to an actual update handler
 
     let cors = warp::cors()
         .allow_any_origin()

@@ -1,3 +1,3 @@
 pub mod question;
 pub mod error;
-pub mod page;
+pub mod pagination;

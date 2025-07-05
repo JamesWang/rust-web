@@ -1,11 +1,11 @@
 use warp::reject::Reject;
-use crate::models::question::{Question, QuestionId};
+use crate::types::question::{Question, QuestionId};
 use std::str::FromStr;
 use warp::filters::{cors::CorsForbidden, body::BodyDeserializeError};
 use crate::storage::store::Store;
 use std::collections::HashMap;
-use crate::models::page::extract_pagination;
-use crate::models::error::Error;
+use crate::types::pagination::extract_pagination;
+use crate::types::error::Error;
 use warp::http::StatusCode;
 
 
@@ -26,40 +26,6 @@ pub async fn get_questions(
     Ok(warp::reply::json(&res))
 }
 
-pub async fn return_error(err: warp::Rejection) -> Result<impl warp::Reply, warp::Rejection> {
-    println!("Error occurred: {:?}", err);
-    if let Some(error) = err.find::<Error>() {
-        return Ok(warp::reply::with_status(
-            error.to_string(),
-            StatusCode::RANGE_NOT_SATISFIABLE,
-        ));
-    } else
-    if let Some(error) = err.find::<CorsForbidden>() {
-        return Ok(warp::reply::with_status(
-            error.to_string(),
-            StatusCode::FORBIDDEN,
-        ));
-    } else if let Some(error) = err.find::<BodyDeserializeError>() {
-        return Ok(warp::reply::with_status(
-            error.to_string(),
-            StatusCode::UNPROCESSABLE_ENTITY,
-        ));
-    }
-    /* else
-    if let Some(_InvalidId) = err.find::<InvalidId>() {
-        return Ok(warp::reply::with_status(
-            "Invalid ID provided".to_string(),
-            warp::http::StatusCode::UNPROCESSABLE_ENTITY
-        )); 
-    }  */else {
-        // Handle other types of errors
-        eprintln!("Unhandled error: {:?}", err);
-        Ok(warp::reply::with_status(
-            "Route not found or internal error".to_string(),
-            warp::http::StatusCode::NOT_FOUND,
-        ))
-    }
-}
 pub async fn add_question(
     question: Question, 
     store: Store

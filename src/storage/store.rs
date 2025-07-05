@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use crate::models::question::{Question, QuestionId};
+use crate::types::question::{Question, QuestionId};
 
 #[derive(Debug, Clone)]
 pub struct Store {

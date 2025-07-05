@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use crate::models::error::Error;
-use crate::models::error::Error::MissingParameters;
+use crate::types::error::Error;
+use crate::types::error::Error::MissingParameters;
 use std::str::FromStr;
 
 #[derive(Debug)]
