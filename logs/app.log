@@ -1,0 +1,10 @@
+2025-07-07T20:51:01.448051648-04:00 - ERROR - This is an error message
+2025-07-07T20:51:01.448122777-04:00 - WARN - This is a warning message
+2025-07-07T20:51:01.448164308-04:00 - INFO - This is an info message
+2025-07-07T20:51:01.448522832-04:00 - INFO - Server::run; addr=0.0.0.0:8083
+2025-07-07T20:51:01.448583477-04:00 - INFO - listening on http://0.0.0.0:8083
+2025-07-07T20:51:45.426069284-04:00 - ERROR - This is an error message
+2025-07-07T20:51:45.426293346-04:00 - WARN - This is a warning message
+2025-07-07T20:51:45.426438719-04:00 - INFO - This is an info message
+2025-07-07T20:51:45.427364825-04:00 - INFO - Server::run; addr=0.0.0.0:8083
+2025-07-07T20:51:45.427572676-04:00 - INFO - listening on http://0.0.0.0:8083

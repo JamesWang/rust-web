@@ -5,9 +5,8 @@ use warp::filters::{cors::CorsForbidden, body::BodyDeserializeError};
 use crate::storage::store::Store;
 use std::collections::HashMap;
 use crate::types::pagination::extract_pagination;
-use crate::types::error::Error;
 use warp::http::StatusCode;
-
+use handle_errors::Error;
 
 #[derive(Debug)]
 struct InvalidId;

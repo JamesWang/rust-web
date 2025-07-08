@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-use crate::types::error::Error;
-use crate::types::error::Error::MissingParameters;
 use std::str::FromStr;
+use handle_errors::Error;
+use handle_errors::Error::ParseError;
 
 #[derive(Debug)]
 pub struct Pagination {
