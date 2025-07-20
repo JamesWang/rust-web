@@ -18,10 +18,14 @@ pub async fn get_questions(
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let res: Vec<Question> = store.questions.read().await.values().cloned().collect();
+    //log::info!("Starting querying questions");
     if !params.is_empty() {
         let pagination = extract_pagination(params)?;        
         let res = &res[pagination.start..pagination.end];
-    } 
+    } else {
+        ;
+        //log::info!("No Pagination used, returning all questions");
+    }
     Ok(warp::reply::json(&res))
 }
 

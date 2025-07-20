@@ -15,15 +15,11 @@ use handle_errors::return_error;
 #[tokio::main]
 async fn main() {
     //env_logger::init(); // Initialize the logger
-    if let Err(e) = log4rs::init_file("log4rs.yaml", Default::default()) {
-        eprintln!("Failed to initialize logger: {}", e);
-    }
+    //if let Err(e) = log4rs::init_file("log4rs.yaml", Default::default()) {
+    //    eprintln!("Failed to initialize logger: {}", e);
+    //}
     
-    log::error!("This is an error message");
-    log::warn!("This is a warning message");
-    log::info!("This is an info message");
-    log::debug!("This is a debug message");
-    log::trace!("This is a trace message");
+
     // Start the minimal HTTP server
     // minimal_http_svr().await;
     // The server will run indefinitely, handling requests as they come in.

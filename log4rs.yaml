@@ -8,7 +8,7 @@ appenders:
     kind: file
     path: "logs/app.log"
     encoder:
-      pattern: "{d} - {l} - {m}{n}"
+      kind: json
 root:
   level: info
   appenders:
