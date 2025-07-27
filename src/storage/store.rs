@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-
+use serde_json;
+use crate::types::answer::{Answer, AnswerId};
 use crate::types::question::{Question, QuestionId};
 
 #[derive(Debug, Clone)]
 pub struct Store {
     pub questions: Arc<RwLock<HashMap<QuestionId, Question>>>,
+    pub answers: Arc<RwLock<HashMap<AnswerId, Answer>>>,
 }
 
 
@@ -14,6 +16,7 @@ impl Store {
     pub fn new() -> Self {
         Store {
             questions: Arc::new(RwLock::new(Self::init())),
+            answers: Arc::new(RwLock::new(HashMap::new())), // Initialize with an empty HashMap for answers
         }
     }
 

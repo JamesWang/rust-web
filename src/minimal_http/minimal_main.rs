@@ -1,5 +1,6 @@
+use serde::de;
 use warp::Filter;
-use crate::routes::handler::get_questions;
+use crate::routes::handler::{add_answer, get_questions};
 use crate::storage;
 use handle_errors::return_error;
 use tracing_subscriber::fmt::format::FmtSpan;
@@ -72,6 +73,20 @@ pub async fn minimal_http_svr() {
         .and(store_filter.clone()) // get the store for update_question
         .and_then(crate::routes::handler::update_question); // You might want to change this to an actual update handler
 
+    let delete_question = warp::delete()
+        .and(warp::path("questions"))
+        .and(warp::path::param::<String>()) // Assuming the ID is a String
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and_then(crate::routes::handler::delete_question);
+    
+    let add_answer = warp::post()
+        .and(warp::path("answers"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and(warp::body::form())
+        .and_then(add_answer);
+     
     let cors = warp::cors()
         .allow_any_origin()
         .allow_methods(vec!["GET", "POST", "PUT", "DELETE"])
@@ -83,6 +98,8 @@ pub async fn minimal_http_svr() {
     let routes = get_question
         .or(add_question)
         .or(update_question)
+        .or(delete_question)
+        .or(add_answer)
         .with(cors)
         .with(log)
         .with(warp::trace::request())

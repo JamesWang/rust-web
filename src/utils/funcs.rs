@@ -48,11 +48,10 @@ mod tests {
         let composed = compose!(|x: i32| x + 1, |x: i32| x * 2, |x: i32| x - 3);
         assert_eq!(composed(5), 9); // ((5 + 1) * 2) - 3 = 9
     }
-    
+
     #[test]
     fn test_curry() {
-        let add = curry!(|a, b| a + b);
-        //let add_five = add(5);
+        let add = curry!(|a, b| a + b);   
         assert_eq!(add(5)(10), 15); // 5 + 10 = 15
     }
 }   
