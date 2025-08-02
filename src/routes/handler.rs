@@ -1,82 +1,84 @@
 use warp::reject::Reject;
-use crate::types::question::{Question, QuestionId};
-use crate::types::answer::{Answer, AnswerId};
+use crate::types::question::{Question, QuestionId, NewQuestion};
+use crate::types::answer::{Answer, AnswerId, NewAnswer};
 use std::str::FromStr;
 use warp::filters::{cors::CorsForbidden, body::BodyDeserializeError};
 use crate::storage::store::Store;
 use std::collections::HashMap;
-use crate::types::pagination::extract_pagination;
+use crate::types::pagination::{extract_pagination, Pagination};
 use warp::http::StatusCode;
 use handle_errors::Error;
 
 #[derive(Debug)]
 struct InvalidId;
 impl Reject for InvalidId {}
+use tracing::{event, instrument, Level};
 
-
+#[instrument]
 pub async fn get_questions(
     params: HashMap<String, String>, 
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let res: Vec<Question> = store.questions.read().await.values().cloned().collect();
-    //log::info!("Starting querying questions");
+    event!(target: "practical_rust_book", Level::INFO, "Fetching questions with params: {:?}", params);
+    let mut pagination = Pagination::default();
+
     if !params.is_empty() {
-        let pagination = extract_pagination(params)?;        
-        let res = &res[pagination.start..pagination.end];
-    } else {
-        ;
-        //log::info!("No Pagination used, returning all questions");
+        event!(Level::INFO, pagination = true);
+        pagination = extract_pagination(params)?;
     }
+    //info!(pagination = false);
+    let res: Vec<Question> = match store.get_questions(pagination.limit, pagination.offset)
+    .await {
+        Ok(questions) => questions,
+        Err(e) => {
+            event!(Level::ERROR, "Database query error: {}", e);
+            return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
+        }
+    };
+    event!(Level::INFO, "Fetched {} questions", res.len());
     Ok(warp::reply::json(&res))
 }
 
 pub async fn add_question(
-    question: Question, 
+    new_question: NewQuestion, 
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let mut questions = store.questions.write().await;
-    if questions.contains_key(&question.id()) {
-        return Err(warp::reject::custom(Error::QuestionAlreadyExists));
+    if let Err(e) = store.add_question(new_question).await {
+        return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
     }
-
-    questions.insert(question.id().clone(), question);
-    Ok(warp::reply::with_status("Question added", warp::http::StatusCode::CREATED))
+    Ok(warp::reply::with_status("Question added", StatusCode::OK))
 }
 
 pub async fn update_question(
-    id: String, 
+    id: i32, 
     question: Question, 
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    match store.questions.write().await.get_mut(&QuestionId::new(id)) {
-        Some(existing_question) => *existing_question = question,
-        None => return Err(warp::reject::custom(Error::QuestionNotFound)),
-    }
-    
-    Ok(warp::reply::with_status("Question updated", warp::http::StatusCode::OK))
+    let res = match store.update_question(QuestionId::new(id), question).await {
+        Ok(res) => res,
+        Err(e) => return Err(warp::reject::custom(Error::DatabaseQueryError(e))),
+    };    
+    Ok(warp::reply::json(&res))
 }
 
 pub async fn delete_question(
-    id: String, 
+    id: i32, 
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    match store.questions.write().await.remove(&QuestionId::new(id)) {
-        Some(_) =>{
-            return Ok(warp::reply::with_status("Question deleted", StatusCode::OK));
-        },
-        None => return Err(warp::reject::custom(Error::QuestionNotFound)),
+    if let Err(e) = store.delete_question(QuestionId::new(id)).await {
+        return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
     }
+    // Assuming delete_question returns a Result indicating success or failure
+    // If it returns a specific type, you can adjust the response accordingly
+    Ok(warp::reply::with_status(format!("Question {} deleted", id), StatusCode::OK))
 }
 
 
-pub async fn add_answer(store: Store, params: HashMap<String, String>) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn add_answer(store: Store, new_answer: NewAnswer) -> Result<impl warp::Reply, warp::Rejection> {
     // Implementation for adding an answer
     // This function will need to be defined in the `types::answer` module
-    let answer = Answer {
-        id: AnswerId::new("1".to_string()),
-        content: params.get("content").unwrap().to_string(),
-        question_id: QuestionId::new(params.get("question_id").unwrap().to_string()),
-    };
-    store.answers.write().await.insert(answer.id.clone(), answer);
-    Ok(warp::reply::with_status("Answer added", warp::http::StatusCode::OK))
+    match store.add_answer(new_answer).await {
+        Ok(_answer) => Ok(warp::reply::with_status("Answer added", StatusCode::OK)),
+        Err(e) => Err(warp::reject::custom(Error::DatabaseQueryError(e))),
+    }
 }

@@ -3,10 +3,10 @@ use std::str::FromStr;
 use handle_errors::Error;
 use handle_errors::Error::ParseError;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct Pagination {
-    pub start: usize,
-    pub end: usize,
+    pub limit: Option<u32>,
+    pub offset: u32,
 }
 
 fn param_value_of(key: &str, params: &HashMap<String, String>) -> Result<usize, Error> {
@@ -18,10 +18,10 @@ fn param_value_of(key: &str, params: &HashMap<String, String>) -> Result<usize, 
 
 
 pub fn extract_pagination(params: HashMap<String, String>) -> Result<Pagination, Error> {
-    if params.contains_key("start") && params.contains_key("end") {
+    if params.contains_key("limit") && params.contains_key("offset") {
         return Ok(Pagination {
-            start: param_value_of("start", &params)?,
-            end: param_value_of("end", &params)?,
+            limit: Some(param_value_of("limit", &params)? as u32),
+            offset: param_value_of("offset", &params)? as u32,
         });
     }
 

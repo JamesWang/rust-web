@@ -6,7 +6,9 @@ use handle_errors::return_error;
 use tracing_subscriber::fmt::format::FmtSpan;
 
 pub async fn minimal_http_svr() {
-    let store = storage::store::Store::new();
+    let store = 
+        storage::store::Store::new("postgres://jooly:welcomed@jooly-ub2:5432/rust_web").await;
+
     let store_filter = warp::any().map(move || store.clone());
     
     let log = warp::log::custom(|info| {
@@ -67,7 +69,7 @@ pub async fn minimal_http_svr() {
 
     let update_question = warp::put()
         .and(warp::path("questions"))
-        .and(warp::path::param::<String>()) // Assuming the ID is a String
+        .and(warp::path::param::<i32>()) // Assuming the ID is an i32        
         .and(warp::path::end())
         .and(warp::body::json()) // get Question struct from the body
         .and(store_filter.clone()) // get the store for update_question
@@ -75,7 +77,7 @@ pub async fn minimal_http_svr() {
 
     let delete_question = warp::delete()
         .and(warp::path("questions"))
-        .and(warp::path::param::<String>()) // Assuming the ID is a String
+        .and(warp::path::param::<i32>()) // Assuming the ID is a String
         .and(warp::path::end())
         .and(store_filter.clone())
         .and_then(crate::routes::handler::delete_question);

@@ -8,19 +8,27 @@ pub struct Question {
     content: String,
     tags: Option<Vec<String>>,
 }
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct NewQuestion {
+    pub title: String,
+    pub content: String,
+    pub tags: Option<Vec<String>>,
+}
+
 //HashMap requires the traits Eq, PartialEq, and Hash for any object used as the HashMap key/index
 // QuestionId is used as a unique identifier for each question
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub struct QuestionId(String);
+pub struct QuestionId(pub i32);
 
 impl QuestionId {
-    pub fn new(id: String) -> Self {
+    pub fn new(id: i32) -> Self {
         QuestionId(id)
     }
 }
 
  impl Question {
-/*     pub fn new(id: QuestionId, title: String, content: String, tags: Option<Vec<String>>) -> Self {
+     pub fn new(id: QuestionId, title: String, content: String, tags: Option<Vec<String>>) -> Self {
         Question {
             id,
             title,
@@ -28,6 +36,7 @@ impl QuestionId {
             tags,
         }
     }
+    /* 
      pub fn update_title(&mut self, new_title: String) -> Self{
         Question::new(
             self.id.clone(),

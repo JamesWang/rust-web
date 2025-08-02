@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 warp = "0.3"
+sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "migrate", "postgres"] }
 
 [lib]
 path = "handle_errors.rs"

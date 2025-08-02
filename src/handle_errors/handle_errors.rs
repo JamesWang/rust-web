@@ -1,6 +1,7 @@
 use warp::http::StatusCode;
 use warp::filters::{cors::CorsForbidden, body::BodyDeserializeError};
 use std::collections::HashMap;
+use sqlx::error::Error as SqlxError;
 
 #[derive(Debug)]
 pub enum Error {
@@ -8,15 +9,17 @@ pub enum Error {
     MissingParameters,
     QuestionNotFound,
     QuestionAlreadyExists,
+    DatabaseQueryError(SqlxError),
 }
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
-            Error::ParseError( ref err) => write!(f, "Cannot parse parameter: {}", err),
+        match &*self {
+            Error::ParseError(err) => write!(f, "Cannot parse parameter: {}", err),
             Error::MissingParameters => write!(f, "Missing parameters"),
             Error::QuestionNotFound => write!(f, "Question not found"),
             Error::QuestionAlreadyExists => write!(f, "Question already exists"),
+            Error::DatabaseQueryError(e) => write!(f, "Database query error: {:?}", e),
         }
     }
 }

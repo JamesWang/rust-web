@@ -20,3 +20,4 @@ chrono = "0.4.41"
 uuid = { version = "0.8", features = ["v4"] }
 tracing = {version = "0.1", features = ["log"] }
 tracing-subscriber = {version = "0.3",  features = ["env-filter", "fmt"] }
+sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "migrate", "postgres"] }
