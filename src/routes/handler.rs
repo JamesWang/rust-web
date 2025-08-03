@@ -31,7 +31,8 @@ pub async fn get_questions(
     .await {
         Ok(questions) => questions,
         Err(e) => {
-            event!(Level::ERROR, "Database query error: {}", e);
+            //event!(Level::ERROR, "Database query error: {}", e);
+            tracing::event!(Level::ERROR, "Database query error: {:?}", e);
             return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
         }
     };
@@ -44,6 +45,7 @@ pub async fn add_question(
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
     if let Err(e) = store.add_question(new_question).await {
+        tracing::event!(Level::ERROR, "Failed to add question: {:?}", e);
         return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
     }
     Ok(warp::reply::with_status("Question added", StatusCode::OK))
@@ -56,7 +58,10 @@ pub async fn update_question(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let res = match store.update_question(QuestionId::new(id), question).await {
         Ok(res) => res,
-        Err(e) => return Err(warp::reject::custom(Error::DatabaseQueryError(e))),
+        Err(e) => {
+            tracing::event!(Level::ERROR, "Failed to update question: {:?}", e);
+            return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
+        }
     };    
     Ok(warp::reply::json(&res))
 }
@@ -66,6 +71,7 @@ pub async fn delete_question(
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
     if let Err(e) = store.delete_question(QuestionId::new(id)).await {
+        tracing::event!(Level::ERROR, "Failed to delete question: {:?}", e);
         return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
     }
     // Assuming delete_question returns a Result indicating success or failure
@@ -79,6 +85,9 @@ pub async fn add_answer(store: Store, new_answer: NewAnswer) -> Result<impl warp
     // This function will need to be defined in the `types::answer` module
     match store.add_answer(new_answer).await {
         Ok(_answer) => Ok(warp::reply::with_status("Answer added", StatusCode::OK)),
-        Err(e) => Err(warp::reject::custom(Error::DatabaseQueryError(e))),
+        Err(e) => {
+            tracing::event!(Level::ERROR, "Failed to add answer: {:?}", e);
+            return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
+        }
     }
 }

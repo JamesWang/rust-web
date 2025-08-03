@@ -7,7 +7,8 @@ use tracing_subscriber::fmt::format::FmtSpan;
 
 pub async fn minimal_http_svr() {
     let store = 
-        storage::store::Store::new("postgres://jooly:welcomed@jooly-ub2:5432/rust_web").await;
+        storage::store::Store::new("postgres://jooly:welcome@jooly-ub2:5432/rust_web").await;
+        //storage::store::Store::new("sqlite://rust_web.db").await;
 
     let store_filter = warp::any().map(move || store.clone());
     
