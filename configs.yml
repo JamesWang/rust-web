@@ -1,0 +1,4 @@
+api_key: ${API_KEY}
+database_url: ${db_protocol}://${username}:${password}@${db_host_name}:${db_port}/${db_name}
+port: 8080
+log_level: info

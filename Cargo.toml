@@ -11,6 +11,7 @@ tokio = { version = "1", features = ["full"] }
 reqwest = { version = "0.11", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde_yaml = "0.9"
 dotenv = "0.15"
 handle_errors = { path = "src/handle_errors" }
 #log = "0.4"
@@ -22,3 +23,4 @@ tracing = {version = "0.1", features = ["log"] }
 tracing-subscriber = {version = "0.3",  features = ["env-filter", "fmt"] }
 sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "migrate", "postgres", "sqlite"] }
 hyper = { version = "0.14", features = ["full"] }
+envsubst = "0.2"

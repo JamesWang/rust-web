@@ -4,12 +4,27 @@ use crate::routes::handler::{add_answer, get_questions};
 use crate::storage;
 use handle_errors::return_error;
 use tracing_subscriber::fmt::format::FmtSpan;
+use crate::config::configs;
+use envsubst::substitute;
+use std::env;
+use std::collections::HashMap;
 
 pub async fn minimal_http_svr() {
-    let store = 
-        storage::store::Store::new("postgres://jooly:welcome@jooly-ub2:5432/rust_web").await;
-        //storage::store::Store::new("sqlite://rust_web.db").await;
+    let configs = crate::config::configs::load_configs()
+        .expect("Failed to load configurations");
 
+    let env_vars: HashMap<String, String> = env::vars().collect();
+    let db_url = substitute(
+        configs.database_url, 
+        &env_vars,
+    )
+    .expect("Failed to substitute environment variables in database URL")
+    .to_string();
+    println!("Database URL: {}", db_url);
+    let store = 
+        storage::store::Store::new(db_url.as_str()).await;
+        //storage::store::Store::new("sqlite://rust_web.db").await;
+    
     let store_filter = warp::any().map(move || store.clone());
     
     let log = warp::log::custom(|info| {

@@ -6,6 +6,7 @@ mod storage;
 mod types;
 mod utils;
 mod playground;
+mod config;
 
 use minimal_http::http_call::http_call;
 use minimal_http::minimal_main::minimal_http_svr;
