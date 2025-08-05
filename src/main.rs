@@ -5,6 +5,7 @@ mod routes;
 mod storage;
 mod types;
 mod utils;
+mod playground;
 
 use minimal_http::http_call::http_call;
 use minimal_http::minimal_main::minimal_http_svr;
@@ -41,4 +42,7 @@ async fn main() {
 
     // Start the minimal HTTP server
     minimal_http_svr().await;
+    /* playground::ex1::example_http_call().await.unwrap_or_else(|e| {
+        eprintln!("Error during HTTP call: {}", e);
+    }); */
 }
