@@ -9,6 +9,7 @@ use crate::types::{
 use sqlx::postgres::{PgPoolOptions, PgPool, PgRow};
 use sqlx::Row;
 use handle_errors::Error;
+use crate::types::account::{Account, NewAccount};
 
 #[derive(Debug, Clone)]
 pub struct Store {
@@ -144,6 +145,24 @@ impl Store {
             .await {
                 Ok(answer) => Ok(answer),
                 Err(e) => Err(e),
+            }
+    }
+
+    pub async fn add_account(&self, account: Account) -> Result<bool, Error> {
+        match sqlx::query("INSERT INTO accounts (email, password) VALUES ($1, $2)")
+            .bind(account.email)
+            .bind(account.password)
+            .execute(&self.connection)
+            .await {
+                Ok(_) => Ok(true),
+                Err(error) => {
+                    tracing::event!(
+                        tracing::Level::ERROR, 
+                        code = error.as_database_error().unwrap().code().unwrap().parse::<i32>().unwrap(),
+                        db_message = error.as_database_error().unwrap().constraint ().unwrap()
+                    );
+                    Err(Error::DatabaseQueryError(error))
+                }
             }
     }
 }

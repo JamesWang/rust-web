@@ -105,6 +105,15 @@ pub async fn minimal_http_svr() {
         .and(warp::body::form())
         .and_then(add_answer);
      
+    
+    let registration = warp::post()
+        .and(warp::path("registration"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and(warp::body::json())        
+        //.and(store_filter.clone())
+        .and_then(crate::routes::authentication::register);
+
     let cors = warp::cors()
         .allow_any_origin()
         .allow_methods(vec!["GET", "POST", "PUT", "DELETE"])
@@ -118,6 +127,7 @@ pub async fn minimal_http_svr() {
         .or(update_question)
         .or(delete_question)
         .or(add_answer)
+        .or(registration)
         .with(cors)
         .with(log)
         .with(warp::trace::request())
