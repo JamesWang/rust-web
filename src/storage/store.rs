@@ -1,3 +1,4 @@
+use core::error;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -55,7 +56,7 @@ impl Store {
         self.questions.values().collect()
     } */
 
-   pub async fn get_questions(&self, limit: Option<u32>, offset: u32) -> Result<Vec<Question>, sqlx::Error> {
+   pub async fn get_questions(&self, limit: Option<u32>, offset: u32) -> Result<Vec<Question>, Error> {
         match sqlx::query("SELECT id, title, content, tags FROM questions LIMIT $1 OFFSET $2")
             .bind(limit.map(|v| v as i32)) // Default limit if None
             .bind(offset as i64)
@@ -70,7 +71,7 @@ impl Store {
                     Ok(questions) => Ok(questions),
                     Err(e) => {
                         tracing::event!(tracing::Level::ERROR, "Error fetching questions: {:?}", e);
-                        Err(e)
+                        Err(Error::DatabaseQueryError(e))
             }
         }
     }
@@ -158,8 +159,22 @@ impl Store {
                 Err(error) => {
                     tracing::event!(
                         tracing::Level::ERROR, 
-                        code = error.as_database_error().unwrap().code().unwrap().parse::<i32>().unwrap(),
-                        db_message = error.as_database_error().unwrap().constraint ().unwrap()
+                        code = error
+                                .as_database_error()
+                                .unwrap()
+                                .code()
+                                .unwrap()
+                                .parse::<i32>()
+                                .unwrap(),
+                        db_message = error
+                                .as_database_error()
+                                .unwrap()
+                                .message(),
+                         constraint = error
+                                .as_database_error()
+                                .unwrap()
+                                .constraint()
+                                .unwrap()
                     );
                     Err(Error::DatabaseQueryError(error))
                 }

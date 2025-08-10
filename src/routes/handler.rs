@@ -33,7 +33,7 @@ pub async fn get_questions(
         Err(e) => {
             //event!(Level::ERROR, "Database query error: {}", e);
             tracing::event!(Level::ERROR, "Database query error: {:?}", e);
-            return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
+            return Err(warp::reject::custom(e));
         }
     };
     event!(Level::INFO, "Fetched {} questions", res.len());

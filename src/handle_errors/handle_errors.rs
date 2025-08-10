@@ -1,7 +1,7 @@
-use warp::http::StatusCode;
-use warp::filters::{cors::CorsForbidden, body::BodyDeserializeError};
-use std::collections::HashMap;
 use sqlx::error::Error as SqlxError;
+use std::collections::HashMap;
+use warp::filters::{body::BodyDeserializeError, cors::CorsForbidden};
+use warp::http::StatusCode;
 
 #[derive(Debug)]
 pub enum Error {
@@ -10,6 +10,7 @@ pub enum Error {
     QuestionNotFound,
     QuestionAlreadyExists,
     DatabaseQueryError(SqlxError),
+    HashingError(String),
 }
 
 impl std::fmt::Display for Error {
@@ -20,9 +21,11 @@ impl std::fmt::Display for Error {
             Error::QuestionNotFound => write!(f, "Question not found"),
             Error::QuestionAlreadyExists => write!(f, "Question already exists"),
             Error::DatabaseQueryError(e) => write!(f, "Database query error: {:?}", e),
+            Error::HashingError(e) => write!(f, "Password hashing error: {}", e),
         }
     }
 }
+const DUPLICATE_KEY: u32 = 23505;
 
 pub async fn return_error(err: warp::Rejection) -> Result<impl warp::Reply, warp::Rejection> {
     println!("Error occurred: {:?}", err);
@@ -31,8 +34,7 @@ pub async fn return_error(err: warp::Rejection) -> Result<impl warp::Reply, warp
             error.to_string(),
             StatusCode::BAD_REQUEST,
         ));
-    } else
-    if let Some(error) = err.find::<CorsForbidden>() {
+    } else if let Some(error) = err.find::<CorsForbidden>() {
         return Ok(warp::reply::with_status(
             error.to_string(),
             StatusCode::FORBIDDEN,
@@ -48,14 +50,39 @@ pub async fn return_error(err: warp::Rejection) -> Result<impl warp::Reply, warp
         return Ok(warp::reply::with_status(
             "Invalid ID provided".to_string(),
             warp::http::StatusCode::UNPROCESSABLE_ENTITY
-        )); 
-    }  */else {
-        // Handle other types of errors
-        eprintln!("Unhandled error: {:?}", err);
-        Ok(warp::reply::with_status(
-            "Route not found or internal error".to_string(),
-            warp::http::StatusCode::NOT_FOUND,
-        ))
+        ));
+    }  */
+    else {
+        if let Some(Error::DatabaseQueryError(sqlx_error)) = err.find() {
+            match sqlx_error {
+                sqlx::Error::Database(db_error) => {
+                    if db_error.code().unwrap().parse::<u32>().unwrap() == DUPLICATE_KEY {
+                        return Ok(warp::reply::with_status(
+                            "Duplicate key error".to_string(),
+                            StatusCode::CONFLICT,
+                        ));
+                    } else {
+                        return Ok(warp::reply::with_status(
+                            format!("Database error: {}", db_error.message()),
+                            StatusCode::UNPROCESSABLE_ENTITY,
+                        ));
+                    }
+                }
+                _ => {
+                    return Ok(warp::reply::with_status(
+                        format!("Database error: {}", sqlx_error.to_string()),
+                        StatusCode::UNPROCESSABLE_ENTITY,
+                    ));
+                }
+            }
+        } else {
+            // Handle other types of errors
+            eprintln!("Unhandled error: {:?}", err);
+            Ok(warp::reply::with_status(
+                "Route not found or internal error".to_string(),
+                warp::http::StatusCode::NOT_FOUND,
+            ))
+        }
     }
 }
 
