@@ -149,7 +149,7 @@ impl Store {
             }
     }
 
-    pub async fn add_account(&self, account: Account) -> Result<bool, Error> {
+    pub async fn add_account(&self, account: Account) -> Result<bool, sqlx::Error> {
         match sqlx::query("INSERT INTO accounts (email, password) VALUES ($1, $2)")
             .bind(account.email)
             .bind(account.password)
@@ -176,7 +176,60 @@ impl Store {
                                 .constraint()
                                 .unwrap()
                     );
-                    Err(Error::DatabaseQueryError(error))
+                    Err(error)
+                }
+            }
+    }
+
+    pub async fn add_server_ip(&self, server_ip: crate::types::server_ip::NewServerIp) -> Result<bool, sqlx::Error> {
+        match sqlx::query("INSERT INTO server_ip (hostname, ip4, ip6, mac) VALUES ($1, $2, $3, $4)")
+            .bind(server_ip.hostname)
+            .bind(server_ip.ip4_address)
+            .bind(server_ip.ip6_address)
+            .bind(server_ip.mac_address)
+            .execute(&self.connection)
+            .await {
+                Ok(_) => Ok(true),
+                Err(error) => {
+                    tracing::event!(
+                        tracing::Level::ERROR, 
+                        code = error
+                                .as_database_error()
+                                .unwrap()
+                                .code()
+                                .unwrap()
+                                .parse::<i32>()
+                                .unwrap(),
+                        db_message = error
+                                .as_database_error()
+                                .unwrap()
+                                .message(),
+                         constraint = error
+                                .as_database_error()
+                                .unwrap()
+                                .constraint()
+                                .unwrap()
+                    );
+                    Err(error)
+                }
+            }
+    }
+
+    pub async fn get_server_ips(&self) -> Result<Vec<crate::types::server_ip::ServerIp>, Error> {
+        match sqlx::query("SELECT id, hostname, ip4, ip6, mac FROM server_ip")
+            .map(|row: PgRow| crate::types::server_ip::ServerIp {
+                id: row.get::<i32, _>("id"),
+                hostname: row.get("hostname"),
+                ip4_address: row.get("ip4"),
+                ip6_address: row.get::<Option<String>, _>("ip6"),
+                mac_address: row.get::<Option<String>, _>("mac"),
+            })
+            .fetch_all(&self.connection)
+            .await {
+                Ok(server_ips) => Ok(server_ips),
+                Err(e) => {
+                    tracing::event!(tracing::Level::ERROR, "Error fetching server IPs: {:?}", e);
+                    Err(Error::DatabaseQueryError(e))
                 }
             }
     }

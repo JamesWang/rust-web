@@ -17,7 +17,7 @@ pub async fn register(store: Store, account: Account) -> Result<impl warp::Reply
         Ok(_) => Ok(warp::reply::with_status("Account created", StatusCode::OK)),
         Err(e) => {
             tracing::event!(tracing::Level::ERROR, "Failed to create account: {:?}", e);
-            Err(warp::reject::custom(e))
+            Err(warp::reject::custom(Error::DatabaseQueryError(e)))
         }
     }
 }

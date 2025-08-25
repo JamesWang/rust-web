@@ -105,7 +105,19 @@ pub async fn minimal_http_svr() {
         .and(warp::body::form())
         .and_then(add_answer);
      
-    
+    let add_server_ip = warp::post()
+        .and(warp::path("server_ips"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and(warp::body::json())
+        .and_then(crate::routes::handler::add_server_ip);
+
+    let get_server_ips = warp::get()
+        .and(warp::path("server_ips"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and_then(crate::routes::handler::get_server_ips);
+
     let registration = warp::post()
         .and(warp::path("registration"))
         .and(warp::path::end())
@@ -127,6 +139,8 @@ pub async fn minimal_http_svr() {
         .or(update_question)
         .or(delete_question)
         .or(add_answer)
+        .or(add_server_ip)
+        .or(get_server_ips)        
         .or(registration)
         .with(cors)
         .with(log)

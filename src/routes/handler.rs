@@ -1,6 +1,7 @@
 use warp::reject::Reject;
 use crate::types::question::{Question, QuestionId, NewQuestion};
 use crate::types::answer::{Answer, AnswerId, NewAnswer};
+use crate::types::server_ip::{ServerIp, NewServerIp};
 use std::str::FromStr;
 use warp::filters::{cors::CorsForbidden, body::BodyDeserializeError};
 use crate::storage::store::Store;
@@ -88,6 +89,26 @@ pub async fn add_answer(store: Store, new_answer: NewAnswer) -> Result<impl warp
         Err(e) => {
             tracing::event!(Level::ERROR, "Failed to add answer: {:?}", e);
             return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
+        }
+    }
+}
+
+pub async fn add_server_ip(store: Store, new_server_ip: NewServerIp) -> Result<impl warp::Reply, warp::Rejection> {
+    match store.add_server_ip(new_server_ip).await {
+        Ok(_) => Ok(warp::reply::with_status("Server IP added", StatusCode::OK)),
+        Err(e) => {
+            tracing::event!(Level::ERROR, "Failed to add server IP: {:?}", e);
+            return Err(warp::reject::custom(Error::DatabaseQueryError(e)));
+        }
+    }
+}
+
+pub async fn get_server_ips(store: Store) -> Result<impl warp::Reply, warp::Rejection> {
+    match store.get_server_ips().await {
+        Ok(server_ips) => Ok(warp::reply::json(&server_ips)),
+        Err(e) => {
+            tracing::event!(Level::ERROR, "Failed to fetch server IPs: {:?}", e);
+            return Err(warp::reject::custom(e));
         }
     }
 }
