@@ -1,7 +1,8 @@
 use crate::storage::store::Store;
-use crate::types::account::{Account, NewAccount};
-use argon2::{self, Config};
+use crate::types::account::{Account, AccountId, NewAccount};
+use argon2::Config;
 use handle_errors::Error;
+use paseto::v2::local_paseto;
 use rand::Rng;
 use warp::http::StatusCode;
 
@@ -28,4 +29,36 @@ pub fn hash_password(password: &[u8]) -> Result<String, Error> {
     let hashed = argon2::hash_encoded(password, &salt, &config)
         .map_err(|e| Error::HashingError(e.to_string()))?;
     Ok(hashed)
+}
+
+pub async fn login(store: Store, login: Account) -> Result<impl warp::Reply, warp::Rejection> {
+    match store.get_account(login.email).await {
+        Ok(account) => {
+            match verify_password(&account.password, &login.password.as_bytes()) {            
+                Ok(verified) => {
+                    if verified {
+                        Ok(warp::reply::json(&issue_token(&account.id.expect("id not found"))))
+                    } else {
+                        Err(warp::reject::custom(Error::WrongPassword))
+                    }                
+                },
+                Err(e) => Err(warp::reject::custom(Error::ArgonLibraryError(e))),
+            }
+        },
+        Err(e) => {
+            tracing::event!(tracing::Level::ERROR, "Failed to fetch account: {:?}", e);
+            Err(warp::reject::custom(e))
+        }
+    }
+}
+
+fn verify_password(hashed_password: &str, password: &[u8]) -> Result<bool, argon2::Error> {
+    argon2::verify_encoded(hashed_password, password)
+}
+
+fn issue_token(account_id: &AccountId) -> String {
+    // In a real application, you would generate a JWT or similar token here.
+    let state = serde_json::to_string(account_id).expect("Failed to serialize account ID");
+    tracing::event!(tracing::Level::INFO, "Issuing token for account: {}", state);
+    local_paseto(&state, None, "RANDOM WORDS WINTER MACINTOSH PC".as_bytes()).expect("Failed to create token")
 }

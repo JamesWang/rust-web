@@ -125,6 +125,13 @@ pub async fn minimal_http_svr() {
         .and(warp::body::json())        
         //.and(store_filter.clone())
         .and_then(crate::routes::authentication::register);
+    let login = warp::post()
+        .and(warp::path("login"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and(warp::body::json())        
+        //.and(store_filter.clone())
+        .and_then(crate::routes::authentication::login);
 
     let cors = warp::cors()
         .allow_any_origin()
@@ -142,6 +149,7 @@ pub async fn minimal_http_svr() {
         .or(add_server_ip)
         .or(get_server_ips)        
         .or(registration)
+        .or(login)
         .with(cors)
         .with(log)
         .with(warp::trace::request())

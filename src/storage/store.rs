@@ -10,7 +10,7 @@ use crate::types::{
 use sqlx::postgres::{PgPoolOptions, PgPool, PgRow};
 use sqlx::Row;
 use handle_errors::Error;
-use crate::types::account::{Account, NewAccount};
+use crate::types::account::{Account, AccountId, NewAccount};
 
 #[derive(Debug, Clone)]
 pub struct Store {
@@ -177,6 +177,23 @@ impl Store {
                                 .unwrap()
                     );
                     Err(error)
+                }
+            }
+    }
+    pub async fn get_account(&self, email: String) -> Result<Account, Error> {
+        match sqlx::query("SELECT id, email, password FROM accounts WHERE email = $1")
+            .bind(email)
+            .map(|row: PgRow| Account {
+                id: Some(AccountId(row.get::<i32, _>("id"))),
+                email: row.get("email"),
+                password: row.get("password"),
+            })
+            .fetch_one(&self.connection)
+            .await {
+                Ok(account) => Ok(account),
+                Err(e) => {
+                    tracing::event!(tracing::Level::ERROR, "Error fetching account: {:?}", e);
+                    Err(Error::DatabaseQueryError(e))
                 }
             }
     }

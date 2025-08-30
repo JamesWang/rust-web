@@ -2,12 +2,17 @@ use sqlx::error::Error as SqlxError;
 use std::collections::HashMap;
 use warp::filters::{body::BodyDeserializeError, cors::CorsForbidden};
 use warp::http::StatusCode;
+use argon2::{
+    Error as ArgonError
+};
 
 #[derive(Debug)]
 pub enum Error {
     ParseError(std::num::ParseIntError),
     MissingParameters,
     QuestionNotFound,
+    WrongPassword,
+    ArgonLibraryError(ArgonError),
     QuestionAlreadyExists,
     DatabaseQueryError(SqlxError),
     HashingError(String),
@@ -19,6 +24,8 @@ impl std::fmt::Display for Error {
             Error::ParseError(err) => write!(f, "Cannot parse parameter: {}", err),
             Error::MissingParameters => write!(f, "Missing parameters"),
             Error::QuestionNotFound => write!(f, "Question not found"),
+            Error::WrongPassword => write!(f, "Wrong password"),
+            Error::ArgonLibraryError(e) => write!(f, "Cannot verify password"),
             Error::QuestionAlreadyExists => write!(f, "Question already exists"),
             Error::DatabaseQueryError(e) => write!(f, "Database query error: {:?}", e),
             Error::HashingError(e) => write!(f, "Password hashing error: {}", e),
@@ -43,6 +50,11 @@ pub async fn return_error(err: warp::Rejection) -> Result<impl warp::Reply, warp
         return Ok(warp::reply::with_status(
             error.to_string(),
             StatusCode::UNPROCESSABLE_ENTITY,
+        ));
+    } else if let Some(Error::WrongPassword) = err.find() {
+        return Ok(warp::reply::with_status(
+            "E-Mail/Password combination".to_string(),
+            StatusCode::UNAUTHORIZED,
         ));
     }
     /* else

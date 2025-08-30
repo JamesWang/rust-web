@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 warp = "0.3"
 sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "migrate", "postgres"] }
+rust-argon2 = "1.0"
 
 [lib]
 path = "handle_errors.rs"

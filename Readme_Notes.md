@@ -16,3 +16,10 @@ and
 .and(store_filter.clone())
 ```
 must match the order of parameters in your handler function. Always align filter order with handler argument order.
+
+* Got errors when use argon2
+ - error:
+     ```
+     error[E0432]: unresolved import `argon2`
+     ```
+ - need add rust-argon2 or argon2 to sub-module(handle-errors) and main module because both places use it

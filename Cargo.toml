@@ -13,7 +13,6 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9"
 dotenv = "0.15"
-handle_errors = { path = "src/handle_errors" }
 #log = "0.4"
 #env_logger = "0.9"
 #log4rs = "1.0"
@@ -25,5 +24,6 @@ sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "migrate", "post
 hyper = { version = "0.14", features = ["full"] }
 envsubst = "0.2"
 rand = "0.8"
-rust-argon2 = "1.0"
 paseto = "2.0"
+rust-argon2 = "1.0"
+handle_errors = { path = "src/handle_errors" }
