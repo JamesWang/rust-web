@@ -250,4 +250,19 @@ impl Store {
                 }
             }
     }
+
+    pub async fn is_question_owner(&self, account_id: AccountId, question_id: &QuestionId) -> Result<bool, Error> {
+        match sqlx::query("SELECT COUNT(*) as count FROM questions WHERE id = $1 AND account_id = $2")
+            .bind(question_id.0)
+            .bind(account_id.0)
+            .map(|row: PgRow| row.get::<i64, _>("count"))
+            .fetch_one(&self.connection)
+            .await {
+                Ok(count) => Ok(count > 0),
+                Err(e) => {
+                    tracing::event!(tracing::Level::ERROR, "Error checking question ownership: {:?}", e);
+                    Err(Error::DatabaseQueryError(e))
+                }
+            }
+    }
 }

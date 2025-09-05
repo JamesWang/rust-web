@@ -16,6 +16,8 @@ pub enum Error {
     QuestionAlreadyExists,
     DatabaseQueryError(SqlxError),
     HashingError(String),
+    CannotDecryptToken,
+    Unauthorized,
 }
 
 impl std::fmt::Display for Error {
@@ -29,6 +31,8 @@ impl std::fmt::Display for Error {
             Error::QuestionAlreadyExists => write!(f, "Question already exists"),
             Error::DatabaseQueryError(e) => write!(f, "Database query error: {:?}", e),
             Error::HashingError(e) => write!(f, "Password hashing error: {}", e),
+            Error::CannotDecryptToken => write!(f, "Cannot decrypt token"),
+            Error::Unauthorized => write!(f, "Unauthorized access"),
         }
     }
 }

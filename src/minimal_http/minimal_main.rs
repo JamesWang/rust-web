@@ -75,6 +75,7 @@ pub async fn minimal_http_svr() {
     let add_question = warp::post()
         .and(warp::path("questions"))
         .and(warp::path::end())
+        .and(crate::routes::authentication::auth())
         .and(warp::body::json())
         //order matters, so the store_filter must be after the body::json()
         //because the body::json() will try to deserialize the body into a Question struct
@@ -83,10 +84,17 @@ pub async fn minimal_http_svr() {
         .and(store_filter.clone())
         .and_then(crate::routes::handler::add_question);
 
+    //Note: the paramm, auth-returned-session, body-json, store-filter order matters
+    //because the handler function parameters order matters
+    //for example, update_question(id: i32, session: Session, question: Question, store: Store)
+    //the warp filters must be in the same order as the function parameters
+    //i.e., id first, then session, then question, then store
+    //otherwise, it will cause a compile-time error
     let update_question = warp::put()
         .and(warp::path("questions"))
         .and(warp::path::param::<i32>()) // Assuming the ID is an i32        
         .and(warp::path::end())
+        .and(crate::routes::authentication::auth())
         .and(warp::body::json()) // get Question struct from the body
         .and(store_filter.clone()) // get the store for update_question
         .and_then(crate::routes::handler::update_question); // You might want to change this to an actual update handler
@@ -95,12 +103,14 @@ pub async fn minimal_http_svr() {
         .and(warp::path("questions"))
         .and(warp::path::param::<i32>()) // Assuming the ID is a String
         .and(warp::path::end())
+        .and(crate::routes::authentication::auth())
         .and(store_filter.clone())
         .and_then(crate::routes::handler::delete_question);
     
     let add_answer = warp::post()
         .and(warp::path("answers"))
         .and(warp::path::end())
+        .and(crate::routes::authentication::auth())
         .and(store_filter.clone())
         .and(warp::body::form())
         .and_then(add_answer);

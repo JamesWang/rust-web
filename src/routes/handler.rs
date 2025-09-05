@@ -1,4 +1,5 @@
 use warp::reject::Reject;
+use crate::types::account::Session;
 use crate::types::question::{Question, QuestionId, NewQuestion};
 use crate::types::answer::{Answer, AnswerId, NewAnswer};
 use crate::types::server_ip::{ServerIp, NewServerIp};
@@ -42,6 +43,7 @@ pub async fn get_questions(
 }
 
 pub async fn add_question(
+    session: Session,
     new_question: NewQuestion, 
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
@@ -54,6 +56,7 @@ pub async fn add_question(
 
 pub async fn update_question(
     id: i32, 
+    session: Session,
     question: Question, 
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
@@ -69,6 +72,7 @@ pub async fn update_question(
 
 pub async fn delete_question(
     id: i32, 
+    session: Session,
     store: Store
 ) -> Result<impl warp::Reply, warp::Rejection> {
     if let Err(e) = store.delete_question(QuestionId::new(id)).await {
@@ -81,7 +85,7 @@ pub async fn delete_question(
 }
 
 
-pub async fn add_answer(store: Store, new_answer: NewAnswer) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn add_answer(session: Session, store: Store, new_answer: NewAnswer) -> Result<impl warp::Reply, warp::Rejection> {
     // Implementation for adding an answer
     // This function will need to be defined in the `types::answer` module
     match store.add_answer(new_answer).await {
